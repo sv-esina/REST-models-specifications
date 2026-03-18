@@ -166,7 +166,7 @@ public class RegistrationTests extends TestBase {
     @DisplayName("Регистрация пользователя c null в параметрах")
     public void nullUsernameAndPasswordRegistrationTest() {
 
-        EmptyParamsRegistrationResponseModel registrationResponse = step("Отправка null строк для регистрации", () -> {
+        EmptyParamsRegistrationResponseModel RegistrationResponse = step("Отправка null строк для регистрации", () -> {
             RegistrationBodyModel registrationData = new RegistrationBodyModel(nullUsername, nullPassword);
             return given(requestSpec)
                     .body(registrationData)
@@ -179,8 +179,8 @@ public class RegistrationTests extends TestBase {
         });
 
         step("Проверка текста полученных ошибок", () -> {
-            assertThat(registrationResponse.username().get(0)).isEqualTo("This field may not be null.");
-            assertThat(registrationResponse.password().get(0)).isEqualTo("This field may not be null.");
+            assertThat(RegistrationResponse.username().get(0)).isEqualTo("This field may not be null.");
+            assertThat(RegistrationResponse.password().get(0)).isEqualTo("This field may not be null.");
         });
     }
 }
