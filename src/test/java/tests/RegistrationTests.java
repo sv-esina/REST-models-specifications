@@ -9,8 +9,8 @@ import org.junit.jupiter.api.Test;
 import static io.qameta.allure.Allure.step;
 import static io.restassured.RestAssured.given;
 import static org.assertj.core.api.Assertions.assertThat;
-import static specs.RequestSpec.requestSpec;
-import static specs.registration.ResponseRegistrationSpec.*;
+import static specs.registration.RegistrationSpec.requestSpec;
+import static specs.registration.RegistrationSpec.*;
 
 public class RegistrationTests extends TestBase {
 
