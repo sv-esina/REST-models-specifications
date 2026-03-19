@@ -23,27 +23,28 @@ public class LogoutTests extends TestBase{
     @DisplayName("Успешный выход из сессии")
     public void successfulLogoutTest() {
 
-        String refreshToken = step("Авторизация и получение refresh токена", () -> {
-            LoginBodyModel loginData = new LoginBodyModel(username, password);
-            return given(loginRequestSpec)
-                    .body(loginData)
-                    .when()
-                    .post("/auth/token/")
-                    .then()
-                    .spec(successfulLoginResponseSpec)
-                    .extract().path("refresh");
-        });
+        String refreshToken =
+                step("Авторизация и получение refresh токена", () -> {
+                    LoginBodyModel loginData = new LoginBodyModel(username, password);
+                    return given(loginRequestSpec)
+                            .body(loginData)
+                            .when()
+                            .post("/auth/token/")
+                            .then()
+                            .spec(successfulLoginResponseSpec)
+                            .extract().path("refresh");
+                });
 
-        step("Отправка запроса на выход из сессии", () -> {
-            LogoutBodyModel logoutBody = new LogoutBodyModel(refreshToken);
-            SuccessfulLogoutResponseModel successfulLogout = given(requestSpec)
-                    .body(logoutBody)
-                    .when()
-                    .post("/auth/logout/")
-                    .then()
-                    .spec(successfulLogoutResponseSpec)
-                    .extract().as(SuccessfulLogoutResponseModel.class);
-        });
+                step("Отправка запроса на выход из сессии", () -> {
+                    LogoutBodyModel logoutBody = new LogoutBodyModel(refreshToken);
+                    SuccessfulLogoutResponseModel successfulLogout = given(requestSpec)
+                            .body(logoutBody)
+                            .when()
+                            .post("/auth/logout/")
+                            .then()
+                            .spec(successfulLogoutResponseSpec)
+                            .extract().as(SuccessfulLogoutResponseModel.class);
+                });
     }
 
     @Test
@@ -52,20 +53,20 @@ public class LogoutTests extends TestBase{
 
         InvalidTokenLogoutModel invalidToken =
                 step("Отправка запроса с некорректным токеном", () -> {
-            LogoutBodyModel logoutBody = new LogoutBodyModel(wrongRefreshToken);
-            return given(requestSpec)
-                    .body(logoutBody)
-                    .when()
-                    .post("/auth/logout/")
-                    .then()
-                    .spec(invalidLogoutResponseSpec)
-                    .extract().as(InvalidTokenLogoutModel.class);
-        });
+                    LogoutBodyModel logoutBody = new LogoutBodyModel(wrongRefreshToken);
+                    return given(requestSpec)
+                            .body(logoutBody)
+                            .when()
+                            .post("/auth/logout/")
+                            .then()
+                            .spec(invalidLogoutResponseSpec)
+                            .extract().as(InvalidTokenLogoutModel.class);
+                });
 
-        step("Проверка текста полученных ошибок", () -> {
-            assertThat(invalidToken.detail()).isEqualTo("Token is invalid");
-            assertThat(invalidToken.code()).isEqualTo("token_not_valid");
-        });
+                step("Проверка текста полученных ошибок", () -> {
+                    assertThat(invalidToken.detail()).isEqualTo("Token is invalid");
+                    assertThat(invalidToken.code()).isEqualTo("token_not_valid");
+                });
     }
 
     @Test
@@ -84,9 +85,9 @@ public class LogoutTests extends TestBase{
                             .extract().as(EmptyOrNullParamLogoutResponseModel.class);
                 });
 
-        step("Проверка текста полученных ошибок", () -> {
-            assertThat(nullOrEmptyToken.refresh().get(0)).isEqualTo("This field may not be null.");
-        });
+                step("Проверка текста полученных ошибок", () -> {
+                    assertThat(nullOrEmptyToken.refresh().get(0)).isEqualTo("This field may not be null.");
+                });
     }
 
     @Test
@@ -105,8 +106,8 @@ public class LogoutTests extends TestBase{
                             .extract().as(EmptyOrNullParamLogoutResponseModel.class);
                 });
 
-        step("Проверка текста полученной ошибки", () -> {
-            assertThat(nullOrEmptyToken.refresh().get(0)).isEqualTo("This field may not be blank.");
-        });
+                step("Проверка текста полученной ошибки", () -> {
+                    assertThat(nullOrEmptyToken.refresh().get(0)).isEqualTo("This field may not be blank.");
+                });
     }
 }

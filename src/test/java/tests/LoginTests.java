@@ -95,12 +95,12 @@ public class LoginTests  extends TestBase {
                             .extract().as(WrongPasswordLoginResponseModel.class);
                 });
 
-        step("Проверка текста полученной ошибки", () -> {
-            String expectedDetailError = "Invalid username or password.";
-            String actualDetailError = loginResponse.detail();
+                step("Проверка текста полученной ошибки", () -> {
+                    String expectedDetailError = "Invalid username or password.";
+                    String actualDetailError = loginResponse.detail();
 
-            assertThat(actualDetailError).isEqualTo(expectedDetailError);
-        });
+                    assertThat(actualDetailError).isEqualTo(expectedDetailError);
+                });
     }
 
     @Test
@@ -119,55 +119,55 @@ public class LoginTests  extends TestBase {
                             .extract().as(EmptyParamsLoginResponseModel.class);
                 });
 
-        step("Проверка текста полученных ошибок", () -> {
-            assertThat(loginResponse.username().get(0)).isEqualTo("This field may not be blank.");
-            assertThat(loginResponse.password().get(0)).isEqualTo("This field may not be blank.");
-        });
+                step("Проверка текста полученных ошибок", () -> {
+                    assertThat(loginResponse.username().get(0)).isEqualTo("This field may not be blank.");
+                    assertThat(loginResponse.password().get(0)).isEqualTo("This field may not be blank.");
+                });
     }
 
     @Test
     @DisplayName("Авторизация пользователя с пустым Request body")
     public void emptyRequestBodyRegistrationTest() {
 
-        EmptyParamsLoginResponseModel
-                loginResponse = step("Отправка запроса на авторизацию с пустым Request body", () -> {
-            WrongLoginBodyModel wrongLoginData = new WrongLoginBodyModel();
-            return given(loginRequestSpec)
-                    .body(wrongLoginData)
-                    .when()
-                    .post("/users/register/")
-                    .then()
-                    .spec(emptyPasswordLoginResponseSpec)
-                    .extract()
-                    .as(EmptyParamsLoginResponseModel.class);
-        });
+        EmptyParamsLoginResponseModel loginResponse =
+                step("Отправка запроса на авторизацию с пустым Request body", () -> {
+                    WrongLoginBodyModel wrongLoginData = new WrongLoginBodyModel();
+                    return given(loginRequestSpec)
+                            .body(wrongLoginData)
+                            .when()
+                            .post("/users/register/")
+                            .then()
+                            .spec(emptyPasswordLoginResponseSpec)
+                            .extract()
+                            .as(EmptyParamsLoginResponseModel.class);
+                });
 
-        step("Проверка текста полученных ошибок", () -> {
-            assertThat(loginResponse.username().get(0)).isEqualTo("This field is required.");
-            assertThat(loginResponse.password().get(0)).isEqualTo("This field is required.");
-        });
+                step("Проверка текста полученных ошибок", () -> {
+                    assertThat(loginResponse.username().get(0)).isEqualTo("This field is required.");
+                    assertThat(loginResponse.password().get(0)).isEqualTo("This field is required.");
+                });
     }
 
     @Test
     @DisplayName("Авторизация пользователя c null в параметрах")
     public void nullRequestBodyRegistrationTest() {
 
-        EmptyParamsLoginResponseModel
-                loginResponse = step("Отправка запроса c null в параметрах ", () -> {
-            LoginBodyModel loginData = new LoginBodyModel(nullUsername, nullPassword);
-            return given(loginRequestSpec)
-                    .body(loginData)
-                    .when()
-                    .post("/users/register/")
-                    .then()
-                    .spec(emptyPasswordLoginResponseSpec)
-                    .extract()
-                    .as(EmptyParamsLoginResponseModel.class);
-        });
+        EmptyParamsLoginResponseModel loginResponse =
+                step("Отправка запроса c null в параметрах ", () -> {
+                    LoginBodyModel loginData = new LoginBodyModel(nullUsername, nullPassword);
+                    return given(loginRequestSpec)
+                            .body(loginData)
+                            .when()
+                            .post("/users/register/")
+                            .then()
+                            .spec(emptyPasswordLoginResponseSpec)
+                            .extract()
+                            .as(EmptyParamsLoginResponseModel.class);
+                });
 
-        step("Проверка текста полученных ошибок", () -> {
-            assertThat(loginResponse.username().get(0)).isEqualTo("This field may not be null.");
-            assertThat(loginResponse.password().get(0)).isEqualTo("This field may not be null.");
-        });
+                step("Проверка текста полученных ошибок", () -> {
+                    assertThat(loginResponse.username().get(0)).isEqualTo("This field may not be null.");
+                    assertThat(loginResponse.password().get(0)).isEqualTo("This field may not be null.");
+                });
     }
 }
