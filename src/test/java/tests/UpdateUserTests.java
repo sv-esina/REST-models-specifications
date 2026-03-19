@@ -201,12 +201,12 @@ public class UpdateUserTests extends TestBase {
                             .extract().as(SuccessfulLoginResponseModel.class);
                 });
 
-        step("Проверка полученных токенов", () -> {
-            String actualAccessToken = loginResponse.access();
-            String actualRefreshToken = loginResponse.refresh();
+                step("Проверка полученных токенов", () -> {
+                    String actualAccessToken = loginResponse.access();
+                    String actualRefreshToken = loginResponse.refresh();
 
-            assertThat(actualAccessToken).isNotEqualTo(actualRefreshToken);
-        });
+                    assertThat(actualAccessToken).isNotEqualTo(actualRefreshToken);
+                });
 
 
         EmptyUsernameUpdateUserResponseModel updateResponse =
