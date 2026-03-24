@@ -27,14 +27,16 @@ public class UpdateUserTests extends TestBase {
     String lastName;
     String email;
     String emptyUsername = "";
+    Long randomNumber;
 
 
 
     @BeforeEach
     public void prepareTestData() {
         Faker faker = new Faker();
-        username = faker.name().firstName();
-        password = faker.name().firstName();
+        randomNumber = faker.number().randomNumber(5);
+        username = faker.name().firstName() + randomNumber;
+        password = faker.name().firstName() + randomNumber;
         firstName = faker.name().firstName();
         lastName = faker.name().lastName();
         email = faker.internet().emailAddress();
@@ -117,7 +119,7 @@ public class UpdateUserTests extends TestBase {
     }
 
     @Test
-    @DisplayName("Update данных с отсутствием обязательных параметров")
+    @DisplayName("Update данных с отсутствием обязательных параметров (PUT)")
     public void wrongParamsPutUpdateUserTest() {
 
         SuccessfulRegistrationResponseModel registrationResponse =
@@ -174,7 +176,7 @@ public class UpdateUserTests extends TestBase {
     }
 
     @Test
-    @DisplayName("Update данных с пустым username")
+    @DisplayName("Update данных с пустым username (PUT)")
     public void emptyUsernamePutUpdateUserTest() {
 
         SuccessfulRegistrationResponseModel registrationResponse =

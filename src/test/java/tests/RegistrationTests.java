@@ -21,12 +21,14 @@ public class RegistrationTests extends TestBase {
     String invalidUsername;
     String nullUsername = null;
     String nullPassword = null;
+    Long randomNumber;
 
     @BeforeEach
     public void prepareTestData() {
         Faker faker = new Faker();
-        username = faker.name().firstName();
-        password = faker.name().firstName();
+        randomNumber = faker.number().randomNumber(5);
+        username = faker.name().firstName() + randomNumber;
+        password = faker.name().firstName() + randomNumber;
         invalidUsername = faker.regexify("[\\$#%]{5}");
     }
 
