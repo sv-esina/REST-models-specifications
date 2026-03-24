@@ -13,9 +13,8 @@ import org.junit.jupiter.api.Test;
 import static io.qameta.allure.Allure.step;
 import static io.restassured.RestAssured.given;
 import static org.assertj.core.api.Assertions.assertThat;
-import static specs.login.LoginSpec.loginRequestSpec;
+import static specs.BaseSpec.baseRequestSpec;
 import static specs.login.LoginSpec.successfulLoginResponseSpec;
-import static specs.registration.RegistrationSpec.requestSpec;
 import static specs.registration.RegistrationSpec.successRegistrationResponseSpec;
 import static specs.update.UpdateUserSpec.*;
 
@@ -55,7 +54,7 @@ public class PatchUpdateUserTests extends TestBase {
         SuccessfulRegistrationResponseModel registrationResponse =
                 step("Регистрация пользователя", () -> {
                     RegistrationBodyModel registrationData = new RegistrationBodyModel(username, password);
-                    return given(requestSpec)
+                    return given(baseRequestSpec)
                             .body(registrationData)
                             .when()
                             .post("/users/register/")
@@ -77,7 +76,7 @@ public class PatchUpdateUserTests extends TestBase {
         SuccessfulLoginResponseModel loginResponse =
                 step("Авторизация зарегистрированного пользователя", () -> {
                     LoginBodyModel loginData = new LoginBodyModel(username, password);
-                    return given(loginRequestSpec)
+                    return given(baseRequestSpec)
                             .body(loginData)
                             .when()
                             .post("/auth/token/")
@@ -97,7 +96,7 @@ public class PatchUpdateUserTests extends TestBase {
         SuccessfulPatchUpdateUserResponseModel updateResponse =
                 step("Отправка запроса PATCH на update всех данных пользователя", () -> {
                     PatchUpdateBodyModel patchUpdateData = new PatchUpdateBodyModel(newUsername, firstName, lastName, email);
-                    return given(updateRequestSpec)
+                    return given(baseRequestSpec)
                             .header("Authorization", "Bearer " + loginResponse.access())
                             .body(patchUpdateData)
                             .when()
@@ -131,7 +130,7 @@ public class PatchUpdateUserTests extends TestBase {
         SuccessfulRegistrationResponseModel registrationResponse =
                 step("Регистрация пользователя", () -> {
                     RegistrationBodyModel registrationData = new RegistrationBodyModel(username, password);
-                    return given(requestSpec)
+                    return given(baseRequestSpec)
                             .body(registrationData)
                             .when()
                             .post("/users/register/")
@@ -153,7 +152,7 @@ public class PatchUpdateUserTests extends TestBase {
         SuccessfulLoginResponseModel loginResponse =
                 step("Авторизация зарегистрированного пользователя", () -> {
                     LoginBodyModel loginData = new LoginBodyModel(username, password);
-                    return given(loginRequestSpec)
+                    return given(baseRequestSpec)
                             .body(loginData)
                             .when()
                             .post("/auth/token/")
@@ -173,7 +172,7 @@ public class PatchUpdateUserTests extends TestBase {
         SuccessfulPatchUpdateUserResponseModel updateResponse =
                 step("Отправка запроса PATCH с заменой одного параметра username", () -> {
                     PatchUsernameParamUpdateBodyModel patchUpdateData = new PatchUsernameParamUpdateBodyModel(newUsername);
-                    return given(updateRequestSpec)
+                    return given(baseRequestSpec)
                             .header("Authorization", "Bearer " + loginResponse.access())
                             .body(patchUpdateData)
                             .when()
@@ -208,7 +207,7 @@ public class PatchUpdateUserTests extends TestBase {
         SuccessfulRegistrationResponseModel registrationResponse =
                 step("Регистрация пользователя", () -> {
                     RegistrationBodyModel registrationData = new RegistrationBodyModel(username, password);
-                    return given(requestSpec)
+                    return given(baseRequestSpec)
                             .body(registrationData)
                             .when()
                             .post("/users/register/")
@@ -230,7 +229,7 @@ public class PatchUpdateUserTests extends TestBase {
         SuccessfulLoginResponseModel loginResponse =
                 step("Авторизация зарегистрированного пользователя", () -> {
                     LoginBodyModel loginData = new LoginBodyModel(username, password);
-                    return given(loginRequestSpec)
+                    return given(baseRequestSpec)
                             .body(loginData)
                             .when()
                             .post("/auth/token/")
@@ -250,7 +249,7 @@ public class PatchUpdateUserTests extends TestBase {
         SuccessfulPatchUpdateUserResponseModel patchUpdateResponse =
                 step("Отправка запроса PATCH на update только параметра firstName", () -> {
                     PatchFirstNameParamUpdateBodyModel patchUpdateData = new PatchFirstNameParamUpdateBodyModel(firstName);
-                    return given(updateRequestSpec)
+                    return given(baseRequestSpec)
                             .header("Authorization", "Bearer " + loginResponse.access())
                             .body(patchUpdateData)
                             .when()
@@ -284,7 +283,7 @@ public class PatchUpdateUserTests extends TestBase {
         SuccessfulRegistrationResponseModel registrationResponse =
                 step("Регистрация пользователя", () -> {
                     RegistrationBodyModel registrationData = new RegistrationBodyModel(username, password);
-                    return given(requestSpec)
+                    return given(baseRequestSpec)
                             .body(registrationData)
                             .when()
                             .post("/users/register/")
@@ -306,7 +305,7 @@ public class PatchUpdateUserTests extends TestBase {
         SuccessfulLoginResponseModel loginResponse =
                 step("Авторизация зарегистрированного пользователя", () -> {
                     LoginBodyModel loginData = new LoginBodyModel(username, password);
-                    return given(loginRequestSpec)
+                    return given(baseRequestSpec)
                             .body(loginData)
                             .when()
                             .post("/auth/token/")
@@ -326,7 +325,7 @@ public class PatchUpdateUserTests extends TestBase {
         WrongParamPatchUpdateResponseModel patchUpdateResponse =
                 step("Отправка запроса PATCH с невалидным username", () -> {
                     PatchUpdateBodyModel patchUpdateData = new PatchUpdateBodyModel(invalidUsername, firstName, lastName, email);
-                    return given(updateRequestSpec)
+                    return given(baseRequestSpec)
                             .header("Authorization", "Bearer " + loginResponse.access())
                             .body(patchUpdateData)
                             .when()

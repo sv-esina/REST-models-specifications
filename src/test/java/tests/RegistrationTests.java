@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test;
 import static io.qameta.allure.Allure.step;
 import static io.restassured.RestAssured.given;
 import static org.assertj.core.api.Assertions.assertThat;
-import static specs.registration.RegistrationSpec.requestSpec;
+import static specs.BaseSpec.baseRequestSpec;
 import static specs.registration.RegistrationSpec.*;
 
 public class RegistrationTests extends TestBase {
@@ -39,7 +39,7 @@ public class RegistrationTests extends TestBase {
         SuccessfulRegistrationResponseModel registrationResponse =
                 step("Отправка запроса на регистрацию пользователя", () -> {
                     RegistrationBodyModel registrationData = new RegistrationBodyModel(username, password);
-                    return given(requestSpec)
+                    return given(baseRequestSpec)
                             .body(registrationData)
                             .when()
                             .post("/users/register/")
@@ -68,7 +68,7 @@ public class RegistrationTests extends TestBase {
         SuccessfulRegistrationResponseModel firstRegistrationResponse =
                 step("Успешная регистрация нового пользователя", () -> {
                     RegistrationBodyModel registrationData = new RegistrationBodyModel(username, password);
-                    return given(requestSpec)
+                    return given(baseRequestSpec)
                             .body(registrationData)
                             .when()
                             .post("/users/register/")
@@ -84,7 +84,7 @@ public class RegistrationTests extends TestBase {
         ExistingUserResponseModel secondRegistrationResponse =
                 step("Повторная регистрация пользователя", () -> {
                     RegistrationBodyModel registrationData = new RegistrationBodyModel(username, password);
-                    return given(requestSpec)
+                    return given(baseRequestSpec)
                             .body(registrationData)
                             .when()
                             .post("/users/register/")
@@ -106,7 +106,7 @@ public class RegistrationTests extends TestBase {
         EmptyParamsRegistrationResponseModel RegistrationResponse =
                 step("Отправка запроса на регистрацию с пустыми параметрами", () -> {
                     RegistrationBodyModel registrationData = new RegistrationBodyModel(emptyUsername, emptyPassword);
-                    return given(requestSpec)
+                    return given(baseRequestSpec)
                             .body(registrationData)
                             .when()
                             .post("/users/register/")
@@ -129,7 +129,7 @@ public class RegistrationTests extends TestBase {
         EmptyParamsRegistrationResponseModel RegistrationResponse =
                 step("Отправка запроса на регистрацию с пустым Request body", () -> {
                     WrongRegistrationBodyModel wrongRegistrationData = new WrongRegistrationBodyModel();
-                    return given(requestSpec)
+                    return given(baseRequestSpec)
                             .body(wrongRegistrationData)
                             .when()
                             .post("/users/register/")
@@ -152,7 +152,7 @@ public class RegistrationTests extends TestBase {
         EmptyParamsRegistrationResponseModel RegistrationResponse =
                 step("Отправка запроса на регистрацию с невалидным username", () -> {
                     RegistrationBodyModel wrongRegistrationData = new RegistrationBodyModel(invalidUsername, password);
-                    return given(requestSpec)
+                    return given(baseRequestSpec)
                             .body(wrongRegistrationData)
                             .when()
                             .post("/users/register/")
@@ -174,7 +174,7 @@ public class RegistrationTests extends TestBase {
         EmptyParamsRegistrationResponseModel RegistrationResponse =
                 step("Отправка null строк для регистрации", () -> {
                     RegistrationBodyModel registrationData = new RegistrationBodyModel(nullUsername, nullPassword);
-                    return given(requestSpec)
+                    return given(baseRequestSpec)
                             .body(registrationData)
                             .when()
                             .post("/users/register/")

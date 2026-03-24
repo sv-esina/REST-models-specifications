@@ -1,5 +1,6 @@
 package tests;
 
+import io.qameta.allure.restassured.AllureRestAssured;
 import models.login.*;
 import net.datafaker.Faker;
 import org.junit.jupiter.api.BeforeEach;
@@ -9,6 +10,7 @@ import org.junit.jupiter.api.Test;
 import static io.qameta.allure.Allure.step;
 import static io.restassured.RestAssured.given;
 import static org.assertj.core.api.Assertions.assertThat;
+import static specs.BaseSpec.baseRequestSpec;
 import static specs.login.LoginSpec.*;
 
 public class LoginTests  extends TestBase {
@@ -35,7 +37,8 @@ public class LoginTests  extends TestBase {
         SuccessfulLoginResponseModel loginResponse =
                 step("Отправка успешного запроса на авторизацию пользователя", () -> {
                     LoginBodyModel loginData = new LoginBodyModel(username, password);
-                    return given(loginRequestSpec)
+                    return given(baseRequestSpec)
+                            .filter(new AllureRestAssured())
                             .body(loginData)
                             .when()
                             .post("/auth/token/")
@@ -62,7 +65,7 @@ public class LoginTests  extends TestBase {
         WrongPasswordLoginResponseModel loginResponse =
                 step("Отправка завпроса с некорректным паролем", () -> {
                     LoginBodyModel loginData = new LoginBodyModel(username, wrongPassword);
-                    return given(loginRequestSpec)
+                    return given(baseRequestSpec)
                             .body(loginData)
                             .when()
                             .post("/auth/token/")
@@ -86,7 +89,7 @@ public class LoginTests  extends TestBase {
         WrongPasswordLoginResponseModel loginResponse =
                 step("Отправка завпроса с незарегистрированным пользователем", () -> {
                     LoginBodyModel loginData = new LoginBodyModel(invalidUsername, password);
-                    return given(loginRequestSpec)
+                    return given(baseRequestSpec)
                             .body(loginData)
                             .when()
                             .post("/auth/token/")
@@ -110,7 +113,7 @@ public class LoginTests  extends TestBase {
         EmptyParamsLoginResponseModel loginResponse =
                 step("Отправка завпроса с некорректным паролем", () -> {
                     LoginBodyModel loginData = new LoginBodyModel(emptyUsername, emptyPassword);
-                    return given(loginRequestSpec)
+                    return given(baseRequestSpec)
                             .body(loginData)
                             .when()
                             .post("/auth/token/")
@@ -132,7 +135,7 @@ public class LoginTests  extends TestBase {
         EmptyParamsLoginResponseModel loginResponse =
                 step("Отправка запроса на авторизацию с пустым Request body", () -> {
                     WrongLoginBodyModel wrongLoginData = new WrongLoginBodyModel();
-                    return given(loginRequestSpec)
+                    return given(baseRequestSpec)
                             .body(wrongLoginData)
                             .when()
                             .post("/users/register/")
@@ -155,7 +158,7 @@ public class LoginTests  extends TestBase {
         EmptyParamsLoginResponseModel loginResponse =
                 step("Отправка запроса c null в параметрах ", () -> {
                     LoginBodyModel loginData = new LoginBodyModel(nullUsername, nullPassword);
-                    return given(loginRequestSpec)
+                    return given(baseRequestSpec)
                             .body(loginData)
                             .when()
                             .post("/users/register/")

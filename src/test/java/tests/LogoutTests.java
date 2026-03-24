@@ -8,9 +8,9 @@ import org.junit.jupiter.api.Test;
 import static io.qameta.allure.Allure.step;
 import static io.restassured.RestAssured.given;
 import static org.assertj.core.api.Assertions.assertThat;
+import static specs.BaseSpec.baseRequestSpec;
 import static specs.login.LoginSpec.*;
 import static specs.logout.LogoutSpec.*;
-import static specs.registration.RegistrationSpec.requestSpec;
 
 public class LogoutTests extends TestBase{
     String username = "sv_esina";
@@ -26,7 +26,7 @@ public class LogoutTests extends TestBase{
         String refreshToken =
                 step("Авторизация и получение refresh токена", () -> {
                     LoginBodyModel loginData = new LoginBodyModel(username, password);
-                    return given(loginRequestSpec)
+                    return given(baseRequestSpec)
                             .body(loginData)
                             .when()
                             .post("/auth/token/")
@@ -37,7 +37,7 @@ public class LogoutTests extends TestBase{
 
                 step("Отправка запроса на выход из сессии", () -> {
                     LogoutBodyModel logoutBody = new LogoutBodyModel(refreshToken);
-                    SuccessfulLogoutResponseModel successfulLogout = given(requestSpec)
+                    SuccessfulLogoutResponseModel successfulLogout = given(baseRequestSpec)
                             .body(logoutBody)
                             .when()
                             .post("/auth/logout/")
@@ -54,7 +54,7 @@ public class LogoutTests extends TestBase{
         InvalidTokenLogoutModel invalidToken =
                 step("Отправка запроса с некорректным токеном", () -> {
                     LogoutBodyModel logoutBody = new LogoutBodyModel(wrongRefreshToken);
-                    return given(requestSpec)
+                    return given(baseRequestSpec)
                             .body(logoutBody)
                             .when()
                             .post("/auth/logout/")
@@ -76,7 +76,7 @@ public class LogoutTests extends TestBase{
         EmptyOrNullParamLogoutResponseModel nullOrEmptyToken =
                 step("Отправка запроса с некорректным токеном", () -> {
                     LogoutBodyModel logoutBody = new LogoutBodyModel(nullRefreshToken);
-                    return given(requestSpec)
+                    return given(baseRequestSpec)
                             .body(logoutBody)
                             .when()
                             .post("/auth/logout/")
@@ -97,7 +97,7 @@ public class LogoutTests extends TestBase{
         EmptyOrNullParamLogoutResponseModel nullOrEmptyToken =
                 step("Отправка запроса с пустым параметром refresh", () -> {
                     LogoutBodyModel logoutBody = new LogoutBodyModel(emptyRefreshToken);
-                    return given(requestSpec)
+                    return given(baseRequestSpec)
                             .body(logoutBody)
                             .when()
                             .post("/auth/logout/")
