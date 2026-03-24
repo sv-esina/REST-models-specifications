@@ -5,7 +5,6 @@ import models.login.SuccessfulLoginResponseModel;
 import models.registration.RegistrationBodyModel;
 import models.registration.SuccessfulRegistrationResponseModel;
 import models.update.*;
-import net.datafaker.Faker;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -17,6 +16,7 @@ import static specs.BaseSpec.baseRequestSpec;
 import static specs.login.LoginSpec.successfulLoginResponseSpec;
 import static specs.registration.RegistrationSpec.successRegistrationResponseSpec;
 import static specs.update.UpdateUserSpec.*;
+import static testdata.TestData.*;
 
 public class PatchUpdateUserTests extends TestBase {
 
@@ -26,30 +26,26 @@ public class PatchUpdateUserTests extends TestBase {
     String lastName;
     String email;
     String newUsername;
-    Long randomNumber;
     String invalidUsername;
 
 
 
     @BeforeEach
     public void prepareTestData() {
-        Faker faker = new Faker();
-        randomNumber = faker.number().randomNumber(5);
-        username = faker.name().firstName() + randomNumber;
-        newUsername = faker.name().firstName() + randomNumber;
-        password = faker.name().firstName() + randomNumber;
-        firstName = faker.name().firstName();
-        lastName = faker.name().lastName();
-        email = faker.internet().emailAddress();
-        invalidUsername = faker.regexify("[\\$#%]{5}");
+        username = randomUsername();
+        newUsername = randomUsername();
+        password = randomPassword();
+        firstName = randomFirstName();
+        lastName = randomLastName();
+        email = randomEmail();
+        invalidUsername = randomInvalidUsername();
     }
 
     @Test
     @DisplayName("Успешный update всех данных с помощью метода PATCH /api/v1/users/me/")
     public void successfulPatchUpdateUserTest() {
 
-        String ipAddrRegexp = "^((25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)\\.){3}"
-                + "(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)$";
+        String ipAddrRegexp = IP_ADDRESS_REGEXP;
 
         SuccessfulRegistrationResponseModel registrationResponse =
                 step("Регистрация пользователя", () -> {
@@ -124,8 +120,7 @@ public class PatchUpdateUserTests extends TestBase {
     @DisplayName("Успешный update только параметра username с помощью метода PATCH /api/v1/users/me/")
     public void successfulPatchUpdateOnlyUsernameParamTest() {
 
-        String ipAddrRegexp = "^((25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)\\.){3}"
-                + "(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)$";
+        String ipAddrRegexp = IP_ADDRESS_REGEXP;
 
         SuccessfulRegistrationResponseModel registrationResponse =
                 step("Регистрация пользователя", () -> {
@@ -201,8 +196,7 @@ public class PatchUpdateUserTests extends TestBase {
     @DisplayName("Успешный update только параметра firstName с помощью метода PATCH /api/v1/users/me/")
     public void successfulPatchUpdateOnlyFirstNameParamTest() {
 
-        String ipAddrRegexp = "^((25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)\\.){3}"
-                + "(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)$";
+        String ipAddrRegexp = IP_ADDRESS_REGEXP;
 
         SuccessfulRegistrationResponseModel registrationResponse =
                 step("Регистрация пользователя", () -> {
@@ -277,8 +271,7 @@ public class PatchUpdateUserTests extends TestBase {
     @DisplayName("Update пользователя с недопустимым символом в username (PATCH)")
     public void invalidUsernameParamPatchUpdateTest() {
 
-        String ipAddrRegexp = "^((25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)\\.){3}"
-                + "(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)$";
+        String ipAddrRegexp = IP_ADDRESS_REGEXP;
 
         SuccessfulRegistrationResponseModel registrationResponse =
                 step("Регистрация пользователя", () -> {
@@ -337,7 +330,7 @@ public class PatchUpdateUserTests extends TestBase {
                 });
 
                 step("Проверка текста полученной ошибки", () -> {
-                    assertThat(patchUpdateResponse.username().get(0)).isEqualTo("Enter a valid username. This value may contain only letters, numbers, and @/./+/-/_ characters.");
+                    assertThat(patchUpdateResponse.username().get(0)).isEqualTo(ERROR_INVALID_USERNAME);
                 });
     }
 

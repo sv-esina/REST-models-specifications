@@ -2,7 +2,6 @@ package tests;
 
 import io.qameta.allure.restassured.AllureRestAssured;
 import models.login.*;
-import net.datafaker.Faker;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -12,22 +11,19 @@ import static io.restassured.RestAssured.given;
 import static org.assertj.core.api.Assertions.assertThat;
 import static specs.BaseSpec.baseRequestSpec;
 import static specs.login.LoginSpec.*;
+import static testdata.TestData.*;
 
 public class LoginTests  extends TestBase {
 
-    String username = "sv_esina";
-    String password = "password1";
-    String wrongPassword = "pass123";
-    String emptyUsername = "";
-    String emptyPassword = "";
+    String emptyUsername = EMPTY_STRING;
+    String emptyPassword = EMPTY_STRING;
     String invalidUsername;
     String nullUsername = null;
     String nullPassword = null;
 
     @BeforeEach
     public void prepareTestData() {
-        Faker faker = new Faker();
-        invalidUsername = faker.name().firstName();
+        invalidUsername = randomUsername();
     }
 
     @Test
@@ -36,9 +32,8 @@ public class LoginTests  extends TestBase {
 
         SuccessfulLoginResponseModel loginResponse =
                 step("Отправка успешного запроса на авторизацию пользователя", () -> {
-                    LoginBodyModel loginData = new LoginBodyModel(username, password);
+                    LoginBodyModel loginData = new LoginBodyModel(VALID_USERNAME, VALID_PASSWORD);
                     return given(baseRequestSpec)
-                            .filter(new AllureRestAssured())
                             .body(loginData)
                             .when()
                             .post("/auth/token/")
@@ -48,7 +43,7 @@ public class LoginTests  extends TestBase {
                 });
 
                 step("Проверка корректности полученых токенов", () -> {
-                    String expectedTokenPath = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9";
+                    String expectedTokenPath = JWT_TOKEN_PREFIX;
                     String actualAccess = loginResponse.access();
                     String actualRefresh = loginResponse.refresh();
 
@@ -64,7 +59,7 @@ public class LoginTests  extends TestBase {
 
         WrongPasswordLoginResponseModel loginResponse =
                 step("Отправка завпроса с некорректным паролем", () -> {
-                    LoginBodyModel loginData = new LoginBodyModel(username, wrongPassword);
+                    LoginBodyModel loginData = new LoginBodyModel(VALID_USERNAME, WRONG_PASSWORD);
                     return given(baseRequestSpec)
                             .body(loginData)
                             .when()
@@ -75,7 +70,7 @@ public class LoginTests  extends TestBase {
                 });
 
                 step("Проверка текста полученной ошибки", () -> {
-                    String expectedDetailError = "Invalid username or password.";
+                    String expectedDetailError = ERROR_INVALID_CREDENTIALS;
                     String actualDetailError = loginResponse.detail();
 
                     assertThat(actualDetailError).isEqualTo(expectedDetailError);
@@ -88,7 +83,7 @@ public class LoginTests  extends TestBase {
 
         WrongPasswordLoginResponseModel loginResponse =
                 step("Отправка завпроса с незарегистрированным пользователем", () -> {
-                    LoginBodyModel loginData = new LoginBodyModel(invalidUsername, password);
+                    LoginBodyModel loginData = new LoginBodyModel(invalidUsername, VALID_PASSWORD);
                     return given(baseRequestSpec)
                             .body(loginData)
                             .when()
@@ -99,7 +94,7 @@ public class LoginTests  extends TestBase {
                 });
 
                 step("Проверка текста полученной ошибки", () -> {
-                    String expectedDetailError = "Invalid username or password.";
+                    String expectedDetailError = ERROR_INVALID_CREDENTIALS;
                     String actualDetailError = loginResponse.detail();
 
                     assertThat(actualDetailError).isEqualTo(expectedDetailError);
@@ -123,8 +118,8 @@ public class LoginTests  extends TestBase {
                 });
 
                 step("Проверка текста полученных ошибок", () -> {
-                    assertThat(loginResponse.username().get(0)).isEqualTo("This field may not be blank.");
-                    assertThat(loginResponse.password().get(0)).isEqualTo("This field may not be blank.");
+                    assertThat(loginResponse.username().get(0)).isEqualTo(ERROR_BLANK_FIELD);
+                    assertThat(loginResponse.password().get(0)).isEqualTo(ERROR_BLANK_FIELD);
                 });
     }
 
@@ -146,8 +141,8 @@ public class LoginTests  extends TestBase {
                 });
 
                 step("Проверка текста полученных ошибок", () -> {
-                    assertThat(loginResponse.username().get(0)).isEqualTo("This field is required.");
-                    assertThat(loginResponse.password().get(0)).isEqualTo("This field is required.");
+                    assertThat(loginResponse.username().get(0)).isEqualTo(ERROR_REQUIRED_FIELD);
+                    assertThat(loginResponse.password().get(0)).isEqualTo(ERROR_REQUIRED_FIELD);
                 });
     }
 
@@ -169,8 +164,8 @@ public class LoginTests  extends TestBase {
                 });
 
                 step("Проверка текста полученных ошибок", () -> {
-                    assertThat(loginResponse.username().get(0)).isEqualTo("This field may not be null.");
-                    assertThat(loginResponse.password().get(0)).isEqualTo("This field may not be null.");
+                    assertThat(loginResponse.username().get(0)).isEqualTo(ERROR_NULL_FIELD);
+                    assertThat(loginResponse.password().get(0)).isEqualTo(ERROR_NULL_FIELD);
                 });
     }
 }

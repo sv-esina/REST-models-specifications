@@ -5,7 +5,6 @@ import models.login.SuccessfulLoginResponseModel;
 import models.registration.RegistrationBodyModel;
 import models.registration.SuccessfulRegistrationResponseModel;
 import models.update.*;
-import net.datafaker.Faker;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -17,6 +16,7 @@ import static specs.BaseSpec.baseRequestSpec;
 import static specs.login.LoginSpec.successfulLoginResponseSpec;
 import static specs.registration.RegistrationSpec.successRegistrationResponseSpec;
 import static specs.update.UpdateUserSpec.*;
+import static testdata.TestData.*;
 
 public class UpdateUserTests extends TestBase {
 
@@ -25,28 +25,24 @@ public class UpdateUserTests extends TestBase {
     String firstName;
     String lastName;
     String email;
-    String emptyUsername = "";
-    Long randomNumber;
+    String emptyUsername = EMPTY_STRING;
 
 
 
     @BeforeEach
     public void prepareTestData() {
-        Faker faker = new Faker();
-        randomNumber = faker.number().randomNumber(5);
-        username = faker.name().firstName() + randomNumber;
-        password = faker.name().firstName() + randomNumber;
-        firstName = faker.name().firstName();
-        lastName = faker.name().lastName();
-        email = faker.internet().emailAddress();
+        username = randomUsername();
+        password = randomPassword();
+        firstName = randomFirstName();
+        lastName = randomLastName();
+        email = randomEmail();
     }
 
     @Test
     @DisplayName("Успешный update данных с помощью метода PUT/api/v1/users/me/")
     public void successfulPutUpdateUserTest() {
 
-        String ipAddrRegexp = "^((25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)\\.){3}"
-                + "(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)$";
+        String ipAddrRegexp = IP_ADDRESS_REGEXP;
 
         SuccessfulRegistrationResponseModel registrationResponse =
                 step("Регистрация пользователя", () -> {
@@ -168,9 +164,9 @@ public class UpdateUserTests extends TestBase {
                 });
 
                 step("Проверка текста полученных ошибок", () -> {
-                    assertThat(updateResponse.firstName().get(0)).isEqualTo("This field is required.");
-                    assertThat(updateResponse.lastName().get(0)).isEqualTo("This field is required.");
-                    assertThat(updateResponse.email().get(0)).isEqualTo("This field is required.");
+                    assertThat(updateResponse.firstName().get(0)).isEqualTo(ERROR_REQUIRED_FIELD);
+                    assertThat(updateResponse.lastName().get(0)).isEqualTo(ERROR_REQUIRED_FIELD);
+                    assertThat(updateResponse.email().get(0)).isEqualTo(ERROR_REQUIRED_FIELD);
                 });
     }
 
@@ -225,7 +221,7 @@ public class UpdateUserTests extends TestBase {
                 });
 
                 step("Проверка текста полученной ошибки", () -> {
-                    assertThat(updateResponse.username().get(0)).isEqualTo("This field may not be blank.");
+                    assertThat(updateResponse.username().get(0)).isEqualTo(ERROR_BLANK_FIELD);
                 });
     }
 

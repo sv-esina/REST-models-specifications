@@ -1,7 +1,6 @@
 package tests;
 
 import models.registration.*;
-import net.datafaker.Faker;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -11,25 +10,23 @@ import static io.restassured.RestAssured.given;
 import static org.assertj.core.api.Assertions.assertThat;
 import static specs.BaseSpec.baseRequestSpec;
 import static specs.registration.RegistrationSpec.*;
+import static testdata.TestData.*;
 
 public class RegistrationTests extends TestBase {
 
     String username;
     String password;
-    String emptyUsername = "";
-    String emptyPassword = "";
+    String emptyUsername = EMPTY_STRING;
+    String emptyPassword = EMPTY_STRING;
     String invalidUsername;
     String nullUsername = null;
     String nullPassword = null;
-    Long randomNumber;
 
     @BeforeEach
     public void prepareTestData() {
-        Faker faker = new Faker();
-        randomNumber = faker.number().randomNumber(5);
-        username = faker.name().firstName() + randomNumber;
-        password = faker.name().firstName() + randomNumber;
-        invalidUsername = faker.regexify("[\\$#%]{5}");
+        username = randomUsername();
+        password = randomPassword();
+        invalidUsername = randomInvalidUsername();
     }
 
     @Test
@@ -55,9 +52,7 @@ public class RegistrationTests extends TestBase {
                     assertThat(registrationResponse.lastName()).isEqualTo("");
                     assertThat(registrationResponse.email()).isEqualTo("");
 
-                    String ipAddrRegexp = "^((25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)\\.){3}"
-                            + "(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)$";
-                    assertThat(registrationResponse.remoteAddr()).matches(ipAddrRegexp);
+                    assertThat(registrationResponse.remoteAddr()).matches(IP_ADDRESS_REGEXP);
                 });
     }
 
@@ -95,7 +90,7 @@ public class RegistrationTests extends TestBase {
 
                 step("Проверка текста ошибки", () -> {
                     assertThat(firstRegistrationResponse.username()).isEqualTo(username);
-                    assertThat(secondRegistrationResponse.username().get(0)).isEqualTo("A user with that username already exists.");
+                    assertThat(secondRegistrationResponse.username().get(0)).isEqualTo(ERROR_EXISTING_USER);
                 });
     }
 
@@ -117,8 +112,8 @@ public class RegistrationTests extends TestBase {
                 });
 
                 step("Проверка текста полученных ошибок", () -> {
-                    assertThat(RegistrationResponse.username().get(0)).isEqualTo("This field may not be blank.");
-                    assertThat(RegistrationResponse.password().get(0)).isEqualTo("This field may not be blank.");
+                    assertThat(RegistrationResponse.username().get(0)).isEqualTo(ERROR_BLANK_FIELD);
+                    assertThat(RegistrationResponse.password().get(0)).isEqualTo(ERROR_BLANK_FIELD);
                 });
     }
 
@@ -140,8 +135,8 @@ public class RegistrationTests extends TestBase {
                 });
 
                 step("Проверка текста полученных ошибок", () -> {
-                    assertThat(RegistrationResponse.username().get(0)).isEqualTo("This field is required.");
-                    assertThat(RegistrationResponse.password().get(0)).isEqualTo("This field is required.");
+                    assertThat(RegistrationResponse.username().get(0)).isEqualTo(ERROR_REQUIRED_FIELD);
+                    assertThat(RegistrationResponse.password().get(0)).isEqualTo(ERROR_REQUIRED_FIELD);
                 });
     }
 
@@ -163,7 +158,7 @@ public class RegistrationTests extends TestBase {
                 });
 
                 step("Проверка текста полученной ошибки", () -> {
-                    assertThat(RegistrationResponse.username().get(0)).isEqualTo("Enter a valid username. This value may contain only letters, numbers, and @/./+/-/_ characters.");
+                    assertThat(RegistrationResponse.username().get(0)).isEqualTo(ERROR_INVALID_USERNAME);
                 });
     }
 
@@ -185,8 +180,8 @@ public class RegistrationTests extends TestBase {
                 });
 
                 step("Проверка текста полученных ошибок", () -> {
-                    assertThat(RegistrationResponse.username().get(0)).isEqualTo("This field may not be null.");
-                    assertThat(RegistrationResponse.password().get(0)).isEqualTo("This field may not be null.");
+                    assertThat(RegistrationResponse.username().get(0)).isEqualTo(ERROR_NULL_FIELD);
+                    assertThat(RegistrationResponse.password().get(0)).isEqualTo(ERROR_NULL_FIELD);
                 });
     }
 }

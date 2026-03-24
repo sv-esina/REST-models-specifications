@@ -11,12 +11,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static specs.BaseSpec.baseRequestSpec;
 import static specs.login.LoginSpec.*;
 import static specs.logout.LogoutSpec.*;
+import static testdata.TestData.*;
 
 public class LogoutTests extends TestBase{
-    String username = "sv_esina";
-    String password = "password1";
-    String wrongRefreshToken = "wrongToken123";
-    String emptyRefreshToken = "";
+
+    String emptyRefreshToken = EMPTY_STRING;
     String nullRefreshToken = null;
 
     @Test
@@ -25,7 +24,7 @@ public class LogoutTests extends TestBase{
 
         String refreshToken =
                 step("Авторизация и получение refresh токена", () -> {
-                    LoginBodyModel loginData = new LoginBodyModel(username, password);
+                    LoginBodyModel loginData = new LoginBodyModel(VALID_USERNAME, VALID_PASSWORD);
                     return given(baseRequestSpec)
                             .body(loginData)
                             .when()
@@ -53,7 +52,7 @@ public class LogoutTests extends TestBase{
 
         InvalidTokenLogoutModel invalidToken =
                 step("Отправка запроса с некорректным токеном", () -> {
-                    LogoutBodyModel logoutBody = new LogoutBodyModel(wrongRefreshToken);
+                    LogoutBodyModel logoutBody = new LogoutBodyModel(WRONG_REFRESH_TOKEN);
                     return given(baseRequestSpec)
                             .body(logoutBody)
                             .when()
@@ -64,8 +63,8 @@ public class LogoutTests extends TestBase{
                 });
 
                 step("Проверка текста полученных ошибок", () -> {
-                    assertThat(invalidToken.detail()).isEqualTo("Token is invalid");
-                    assertThat(invalidToken.code()).isEqualTo("token_not_valid");
+                    assertThat(invalidToken.detail()).isEqualTo(ERROR_INVALID_TOKEN);
+                    assertThat(invalidToken.code()).isEqualTo(ERROR_TOKEN_NOT_VALID_CODE);
                 });
     }
 
@@ -86,7 +85,7 @@ public class LogoutTests extends TestBase{
                 });
 
                 step("Проверка текста полученных ошибок", () -> {
-                    assertThat(nullOrEmptyToken.refresh().get(0)).isEqualTo("This field may not be null.");
+                    assertThat(nullOrEmptyToken.refresh().get(0)).isEqualTo(ERROR_NULL_FIELD);
                 });
     }
 
@@ -107,7 +106,7 @@ public class LogoutTests extends TestBase{
                 });
 
                 step("Проверка текста полученной ошибки", () -> {
-                    assertThat(nullOrEmptyToken.refresh().get(0)).isEqualTo("This field may not be blank.");
+                    assertThat(nullOrEmptyToken.refresh().get(0)).isEqualTo(ERROR_BLANK_FIELD);
                 });
     }
 }
