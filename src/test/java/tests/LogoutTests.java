@@ -34,7 +34,7 @@ public class LogoutTests extends TestBase{
                             .extract().path("refresh");
                 });
 
-                step("Отправка запроса на выход из сессии", () -> {
+                step("Отправка запроса logout на выход из сессии", () -> {
                     LogoutBodyModel logoutBody = new LogoutBodyModel(refreshToken);
                     SuccessfulLogoutResponseModel successfulLogout = given(baseRequestSpec)
                             .body(logoutBody)
