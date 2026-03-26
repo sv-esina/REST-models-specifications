@@ -10,12 +10,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import static io.qameta.allure.Allure.step;
-import static io.restassured.RestAssured.given;
 import static org.assertj.core.api.Assertions.assertThat;
-import static specs.BaseSpec.baseRequestSpec;
-import static specs.login.LoginSpec.successfulLoginResponseSpec;
-import static specs.registration.RegistrationSpec.successRegistrationResponseSpec;
-import static specs.update.UpdateUserSpec.*;
 import static testdata.TestData.*;
 
 public class PatchUpdateUserTests extends TestBase {
@@ -27,7 +22,6 @@ public class PatchUpdateUserTests extends TestBase {
     String email;
     String newUsername;
     String invalidUsername;
-
 
 
     @BeforeEach
@@ -45,150 +39,89 @@ public class PatchUpdateUserTests extends TestBase {
     @DisplayName("Успешный update всех данных с помощью метода PATCH /api/v1/users/me/")
     public void successfulPatchUpdateUserTest() {
 
-        String ipAddrRegexp = IP_ADDRESS_REGEXP;
 
-        SuccessfulRegistrationResponseModel registrationResponse =
-                step("Регистрация пользователя", () -> {
-                    RegistrationBodyModel registrationData = new RegistrationBodyModel(username, password);
-                    return given(baseRequestSpec)
-                            .body(registrationData)
-                            .when()
-                            .post("/users/register/")
-                            .then()
-                            .spec(successRegistrationResponseSpec)
-                            .extract().as(SuccessfulRegistrationResponseModel.class);
-                });
+        RegistrationBodyModel registrationData = new RegistrationBodyModel(username, password);
 
-                step("Проверка полученного ответа", () -> {
-                    assertThat(registrationResponse.id()).isGreaterThan(0);
-                    assertThat(registrationResponse.username()).isEqualTo(username);
-                    assertThat(registrationResponse.firstName()).isEqualTo("");
-                    assertThat(registrationResponse.lastName()).isEqualTo("");
-                    assertThat(registrationResponse.email()).isEqualTo("");
-                    assertThat(registrationResponse.remoteAddr()).matches(ipAddrRegexp);
+        SuccessfulRegistrationResponseModel registrationResponse = api.users.register(registrationData);
 
-                });
+        step("Проверка полученного ответа", () -> {
+            assertThat(registrationResponse.id()).isGreaterThan(0);
+            assertThat(registrationResponse.username()).isEqualTo(username);
+            assertThat(registrationResponse.firstName()).isEqualTo("");
+            assertThat(registrationResponse.lastName()).isEqualTo("");
+            assertThat(registrationResponse.email()).isEqualTo("");
+            assertThat(registrationResponse.remoteAddr()).matches(IP_ADDRESS_REGEXP);
 
-        SuccessfulLoginResponseModel loginResponse =
-                step("Авторизация зарегистрированного пользователя", () -> {
-                    LoginBodyModel loginData = new LoginBodyModel(username, password);
-                    return given(baseRequestSpec)
-                            .body(loginData)
-                            .when()
-                            .post("/auth/token/")
-                            .then()
-                            .spec(successfulLoginResponseSpec)
-                            .extract().as(SuccessfulLoginResponseModel.class);
-                });
+        });
 
-                step("Проверка полученных токенов", () -> {
-                    String actualAccessToken = loginResponse.access();
-                    String actualRefreshToken = loginResponse.refresh();
+        LoginBodyModel loginData = new LoginBodyModel(username, password);
 
-                    assertThat(actualAccessToken).isNotEqualTo(actualRefreshToken);
-                });
+        SuccessfulLoginResponseModel loginResponse = api.auth.login(loginData);
 
+        step("Проверка полученных токенов", () -> {
+            assertThat(loginResponse.access()).isNotEqualTo(loginResponse.refresh());
+        });
 
-        SuccessfulPatchUpdateUserResponseModel updateResponse =
-                step("Отправка запроса PATCH на update всех данных пользователя", () -> {
-                    PatchUpdateBodyModel patchUpdateData = new PatchUpdateBodyModel(newUsername, firstName, lastName, email);
-                    return given(baseRequestSpec)
-                            .header("Authorization", "Bearer " + loginResponse.access())
-                            .body(patchUpdateData)
-                            .when()
-                            .patch("/users/me/")
-                            .then()
-                            .spec(successfulPatchUserUpdateSpec)
-                            .extract()
-                            .as(SuccessfulPatchUpdateUserResponseModel.class);
-                });
+        PatchUpdateBodyModel patchUpdateData = new PatchUpdateBodyModel(newUsername, firstName, lastName, email);
 
-                step("Проверка обновленных данных", () -> {
-                    assertThat(updateResponse.id()).isEqualTo(registrationResponse.id());
-                    assertThat(updateResponse.username()).isEqualTo(newUsername);
-                    assertThat(updateResponse.firstName()).isEqualTo(firstName);
-                    assertThat(updateResponse.lastName()).isEqualTo(lastName);
-                    assertThat(updateResponse.email()).isEqualTo(email);
-                    assertThat(registrationResponse.remoteAddr()).matches(ipAddrRegexp);
+        String accessToken = "Bearer " + loginResponse.access();
 
-                    String updateIpAddress = updateResponse.remoteAddr();
-                    assertThat(registrationResponse.remoteAddr()).isEqualTo(updateIpAddress);
-                });
+        SuccessfulPatchUpdateUserResponseModel updateResponse = api.users.updatePatch(patchUpdateData, accessToken);
+
+        step("Проверка обновленных данных", () -> {
+            assertThat(updateResponse.id()).isEqualTo(registrationResponse.id());
+            assertThat(updateResponse.username()).isEqualTo(newUsername);
+            assertThat(updateResponse.firstName()).isEqualTo(firstName);
+            assertThat(updateResponse.lastName()).isEqualTo(lastName);
+            assertThat(updateResponse.email()).isEqualTo(email);
+            assertThat(registrationResponse.remoteAddr()).matches(IP_ADDRESS_REGEXP);
+            assertThat(registrationResponse.remoteAddr()).isEqualTo(updateResponse.remoteAddr());
+        });
     }
 
     @Test
     @DisplayName("Успешный update только параметра username с помощью метода PATCH /api/v1/users/me/")
     public void successfulPatchUpdateOnlyUsernameParamTest() {
 
-        String ipAddrRegexp = IP_ADDRESS_REGEXP;
+        RegistrationBodyModel registrationData = new RegistrationBodyModel(username, password);
 
-        SuccessfulRegistrationResponseModel registrationResponse =
-                step("Регистрация пользователя", () -> {
-                    RegistrationBodyModel registrationData = new RegistrationBodyModel(username, password);
-                    return given(baseRequestSpec)
-                            .body(registrationData)
-                            .when()
-                            .post("/users/register/")
-                            .then()
-                            .spec(successRegistrationResponseSpec)
-                            .extract().as(SuccessfulRegistrationResponseModel.class);
-                });
+        SuccessfulRegistrationResponseModel registrationResponse = api.users.register(registrationData);
 
-                step("Проверка полученного ответа", () -> {
-                    assertThat(registrationResponse.id()).isGreaterThan(0);
-                    assertThat(registrationResponse.username()).isEqualTo(username);
-                    assertThat(registrationResponse.firstName()).isEqualTo("");
-                    assertThat(registrationResponse.lastName()).isEqualTo("");
-                    assertThat(registrationResponse.email()).isEqualTo("");
-                    assertThat(registrationResponse.remoteAddr()).matches(ipAddrRegexp);
+        step("Проверка полученного ответа", () -> {
+            assertThat(registrationResponse.id()).isGreaterThan(0);
+            assertThat(registrationResponse.username()).isEqualTo(username);
+            assertThat(registrationResponse.firstName()).isEqualTo("");
+            assertThat(registrationResponse.lastName()).isEqualTo("");
+            assertThat(registrationResponse.email()).isEqualTo("");
+            assertThat(registrationResponse.remoteAddr()).matches(IP_ADDRESS_REGEXP);
 
-                });
+        });
 
-        SuccessfulLoginResponseModel loginResponse =
-                step("Авторизация зарегистрированного пользователя", () -> {
-                    LoginBodyModel loginData = new LoginBodyModel(username, password);
-                    return given(baseRequestSpec)
-                            .body(loginData)
-                            .when()
-                            .post("/auth/token/")
-                            .then()
-                            .spec(successfulLoginResponseSpec)
-                            .extract().as(SuccessfulLoginResponseModel.class);
-                });
+        LoginBodyModel loginData = new LoginBodyModel(username, password);
 
-                step("Проверка полученных токенов", () -> {
-                    String actualAccessToken = loginResponse.access();
-                    String actualRefreshToken = loginResponse.refresh();
+        SuccessfulLoginResponseModel loginResponse = api.auth.login(loginData);
 
-                    assertThat(actualAccessToken).isNotEqualTo(actualRefreshToken);
-                });
+        step("Проверка полученных токенов", () -> {
+            assertThat(loginResponse.access()).isNotEqualTo(loginResponse.refresh());
+        });
 
+        UpdateBodyModel updateData = new UpdateBodyModel(username, firstName, lastName, email);
 
-        SuccessfulPatchUpdateUserResponseModel updateResponse =
-                step("Отправка запроса PATCH с заменой одного параметра username", () -> {
-                    PatchUsernameParamUpdateBodyModel patchUpdateData = new PatchUsernameParamUpdateBodyModel(newUsername);
-                    return given(baseRequestSpec)
-                            .header("Authorization", "Bearer " + loginResponse.access())
-                            .body(patchUpdateData)
-                            .when()
-                            .patch("/users/me/")
-                            .then()
-                            .spec(successfulOneParamPatchUserUpdateSpec)
-                            .extract()
-                            .as(SuccessfulPatchUpdateUserResponseModel.class);
-                });
+        String accessToken = "Bearer " + loginResponse.access();
 
-                step("Проверка обновленных данных", () -> {
-                    assertThat(updateResponse.id()).isEqualTo(registrationResponse.id());
-                    assertThat(updateResponse.username()).isEqualTo(newUsername);
-                    assertThat(updateResponse.firstName()).isEqualTo("");
-                    assertThat(updateResponse.lastName()).isEqualTo("");
-                    assertThat(updateResponse.email()).isEqualTo("");
-                    assertThat(registrationResponse.remoteAddr()).matches(ipAddrRegexp);
+        PatchUsernameParamUpdateBodyModel patchUsernameUpdateData = new PatchUsernameParamUpdateBodyModel(newUsername);
 
-                    String updateIpAddress = updateResponse.remoteAddr();
-                    assertThat(registrationResponse.remoteAddr()).isEqualTo(updateIpAddress);
-                });
+        SuccessfulPatchUpdateUserResponseModel updateResponse = api.users.updateOnlyUsernamePatch(patchUsernameUpdateData, accessToken);
+
+        step("Проверка обновленных данных", () -> {
+            assertThat(updateResponse.id()).isEqualTo(registrationResponse.id());
+            assertThat(updateResponse.username()).isEqualTo(newUsername);
+            assertThat(updateResponse.firstName()).isEqualTo("");
+            assertThat(updateResponse.lastName()).isEqualTo("");
+            assertThat(updateResponse.email()).isEqualTo("");
+            assertThat(registrationResponse.remoteAddr()).matches(IP_ADDRESS_REGEXP);
+            assertThat(registrationResponse.remoteAddr()).isEqualTo(updateResponse.remoteAddr());
+        });
     }
 
 
@@ -196,142 +129,81 @@ public class PatchUpdateUserTests extends TestBase {
     @DisplayName("Успешный update только параметра firstName с помощью метода PATCH /api/v1/users/me/")
     public void successfulPatchUpdateOnlyFirstNameParamTest() {
 
-        String ipAddrRegexp = IP_ADDRESS_REGEXP;
+        RegistrationBodyModel registrationData = new RegistrationBodyModel(username, password);
 
-        SuccessfulRegistrationResponseModel registrationResponse =
-                step("Регистрация пользователя", () -> {
-                    RegistrationBodyModel registrationData = new RegistrationBodyModel(username, password);
-                    return given(baseRequestSpec)
-                            .body(registrationData)
-                            .when()
-                            .post("/users/register/")
-                            .then()
-                            .spec(successRegistrationResponseSpec)
-                            .extract().as(SuccessfulRegistrationResponseModel.class);
-                });
+        SuccessfulRegistrationResponseModel registrationResponse = api.users.register(registrationData);
 
-                step("Проверка полученного ответа", () -> {
-                    assertThat(registrationResponse.id()).isGreaterThan(0);
-                    assertThat(registrationResponse.username()).isEqualTo(username);
-                    assertThat(registrationResponse.firstName()).isEqualTo("");
-                    assertThat(registrationResponse.lastName()).isEqualTo("");
-                    assertThat(registrationResponse.email()).isEqualTo("");
-                    assertThat(registrationResponse.remoteAddr()).matches(ipAddrRegexp);
+        step("Проверка полученного ответа", () -> {
+            assertThat(registrationResponse.id()).isGreaterThan(0);
+            assertThat(registrationResponse.username()).isEqualTo(username);
+            assertThat(registrationResponse.firstName()).isEqualTo("");
+            assertThat(registrationResponse.lastName()).isEqualTo("");
+            assertThat(registrationResponse.email()).isEqualTo("");
+            assertThat(registrationResponse.remoteAddr()).matches(IP_ADDRESS_REGEXP);
 
-                });
+        });
 
-        SuccessfulLoginResponseModel loginResponse =
-                step("Авторизация зарегистрированного пользователя", () -> {
-                    LoginBodyModel loginData = new LoginBodyModel(username, password);
-                    return given(baseRequestSpec)
-                            .body(loginData)
-                            .when()
-                            .post("/auth/token/")
-                            .then()
-                            .spec(successfulLoginResponseSpec)
-                            .extract().as(SuccessfulLoginResponseModel.class);
-                });
+        LoginBodyModel loginData = new LoginBodyModel(username, password);
 
-                step("Проверка полученных токенов", () -> {
-                    String actualAccessToken = loginResponse.access();
-                    String actualRefreshToken = loginResponse.refresh();
+        SuccessfulLoginResponseModel loginResponse = api.auth.login(loginData);
 
-                    assertThat(actualAccessToken).isNotEqualTo(actualRefreshToken);
-                });
+        step("Проверка полученных токенов", () -> {
+            assertThat(loginResponse.access()).isNotEqualTo(loginResponse.refresh());
+        });
+
+        PatchFirstNameParamUpdateBodyModel patchUpdateData = new PatchFirstNameParamUpdateBodyModel(firstName);
+
+        String accessToken = "Bearer " + loginResponse.access();
 
 
-        SuccessfulPatchUpdateUserResponseModel patchUpdateResponse =
-                step("Отправка запроса PATCH на update только параметра firstName", () -> {
-                    PatchFirstNameParamUpdateBodyModel patchUpdateData = new PatchFirstNameParamUpdateBodyModel(firstName);
-                    return given(baseRequestSpec)
-                            .header("Authorization", "Bearer " + loginResponse.access())
-                            .body(patchUpdateData)
-                            .when()
-                            .patch("/users/me/")
-                            .then()
-                            .spec(successfulOneParamPatchUserUpdateSpec)
-                            .extract()
-                            .as(SuccessfulPatchUpdateUserResponseModel.class);
-                });
+        SuccessfulPatchUpdateUserResponseModel patchUpdateResponse = api.users.updateOnlyFirstNamePatch(patchUpdateData, accessToken);
 
-                step("Проверка обновленных данных", () -> {
-                    assertThat(patchUpdateResponse.id()).isEqualTo(registrationResponse.id());
-                    assertThat(patchUpdateResponse.username()).isEqualTo(username);
-                    assertThat(patchUpdateResponse.firstName()).isEqualTo(firstName);
-                    assertThat(patchUpdateResponse.lastName()).isEqualTo("");
-                    assertThat(patchUpdateResponse.email()).isEqualTo("");
-                    assertThat(registrationResponse.remoteAddr()).matches(ipAddrRegexp);
-
-                    String updateIpAddress = patchUpdateResponse.remoteAddr();
-                    assertThat(registrationResponse.remoteAddr()).isEqualTo(updateIpAddress);
-                });
+        step("Проверка обновленных данных", () -> {
+            assertThat(patchUpdateResponse.id()).isEqualTo(registrationResponse.id());
+            assertThat(patchUpdateResponse.username()).isEqualTo(username);
+            assertThat(patchUpdateResponse.firstName()).isEqualTo(firstName);
+            assertThat(patchUpdateResponse.lastName()).isEqualTo("");
+            assertThat(patchUpdateResponse.email()).isEqualTo("");
+            assertThat(registrationResponse.remoteAddr()).matches(IP_ADDRESS_REGEXP);
+            assertThat(registrationResponse.remoteAddr()).isEqualTo(patchUpdateResponse.remoteAddr());
+        });
     }
 
     @Test
     @DisplayName("Update пользователя с недопустимым символом в username (PATCH)")
     public void invalidUsernameParamPatchUpdateTest() {
 
-        String ipAddrRegexp = IP_ADDRESS_REGEXP;
+        RegistrationBodyModel registrationData = new RegistrationBodyModel(username, password);
 
-        SuccessfulRegistrationResponseModel registrationResponse =
-                step("Регистрация пользователя", () -> {
-                    RegistrationBodyModel registrationData = new RegistrationBodyModel(username, password);
-                    return given(baseRequestSpec)
-                            .body(registrationData)
-                            .when()
-                            .post("/users/register/")
-                            .then()
-                            .spec(successRegistrationResponseSpec)
-                            .extract().as(SuccessfulRegistrationResponseModel.class);
-                });
+        SuccessfulRegistrationResponseModel registrationResponse = api.users.register(registrationData);
 
-                step("Проверка полученного ответа", () -> {
-                    assertThat(registrationResponse.id()).isGreaterThan(0);
-                    assertThat(registrationResponse.username()).isEqualTo(username);
-                    assertThat(registrationResponse.firstName()).isEqualTo("");
-                    assertThat(registrationResponse.lastName()).isEqualTo("");
-                    assertThat(registrationResponse.email()).isEqualTo("");
-                    assertThat(registrationResponse.remoteAddr()).matches(ipAddrRegexp);
+        step("Проверка полученного ответа", () -> {
+            assertThat(registrationResponse.id()).isGreaterThan(0);
+            assertThat(registrationResponse.username()).isEqualTo(username);
+            assertThat(registrationResponse.firstName()).isEqualTo("");
+            assertThat(registrationResponse.lastName()).isEqualTo("");
+            assertThat(registrationResponse.email()).isEqualTo("");
+            assertThat(registrationResponse.remoteAddr()).matches(IP_ADDRESS_REGEXP);
 
-                });
-
-        SuccessfulLoginResponseModel loginResponse =
-                step("Авторизация зарегистрированного пользователя", () -> {
-                    LoginBodyModel loginData = new LoginBodyModel(username, password);
-                    return given(baseRequestSpec)
-                            .body(loginData)
-                            .when()
-                            .post("/auth/token/")
-                            .then()
-                            .spec(successfulLoginResponseSpec)
-                            .extract().as(SuccessfulLoginResponseModel.class);
-                });
-
-                step("Проверка полученных токенов", () -> {
-                    String actualAccessToken = loginResponse.access();
-                    String actualRefreshToken = loginResponse.refresh();
-
-                    assertThat(actualAccessToken).isNotEqualTo(actualRefreshToken);
         });
 
+        LoginBodyModel loginData = new LoginBodyModel(username, password);
 
-        WrongParamPatchUpdateResponseModel patchUpdateResponse =
-                step("Отправка запроса PATCH с невалидным username", () -> {
-                    PatchUpdateBodyModel patchUpdateData = new PatchUpdateBodyModel(invalidUsername, firstName, lastName, email);
-                    return given(baseRequestSpec)
-                            .header("Authorization", "Bearer " + loginResponse.access())
-                            .body(patchUpdateData)
-                            .when()
-                            .patch("/users/me/")
-                            .then()
-                            .spec(wrongPatchUsernameUpdateUserSpec)
-                            .extract()
-                            .as(WrongParamPatchUpdateResponseModel.class);
-                });
+        SuccessfulLoginResponseModel loginResponse = api.auth.login(loginData);
 
-                step("Проверка текста полученной ошибки", () -> {
-                    assertThat(patchUpdateResponse.username().get(0)).isEqualTo(ERROR_INVALID_USERNAME);
-                });
+        step("Проверка полученных токенов", () -> {
+            assertThat(loginResponse.access()).isNotEqualTo(loginResponse.refresh());
+        });
+
+        PatchUpdateBodyModel patchUpdateData = new PatchUpdateBodyModel(invalidUsername, firstName, lastName, email);
+
+        String accessToken = "Bearer " + loginResponse.access();
+
+        WrongParamPatchUpdateResponseModel patchUpdateResponse = api.users.setInvalidUsernameUpdatePatch(patchUpdateData, accessToken);
+
+        step("Проверка текста полученной ошибки", () -> {
+            assertThat(patchUpdateResponse.username().get(0)).isEqualTo(ERROR_INVALID_USERNAME);
+        });
     }
 
 

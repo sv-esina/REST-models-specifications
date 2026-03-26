@@ -6,11 +6,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import static io.qameta.allure.Allure.step;
-import static io.restassured.RestAssured.given;
 import static org.assertj.core.api.Assertions.assertThat;
-import static specs.BaseSpec.baseRequestSpec;
-import static specs.login.LoginSpec.*;
-import static specs.logout.LogoutSpec.*;
 import static testdata.TestData.*;
 
 public class LogoutTests extends TestBase{
@@ -22,91 +18,52 @@ public class LogoutTests extends TestBase{
     @DisplayName("Успешный выход из сессии")
     public void successfulLogoutTest() {
 
-        String refreshToken =
-                step("Авторизация и получение refresh токена", () -> {
-                    LoginBodyModel loginData = new LoginBodyModel(VALID_USERNAME, VALID_PASSWORD);
-                    return given(baseRequestSpec)
-                            .body(loginData)
-                            .when()
-                            .post("/auth/token/")
-                            .then()
-                            .spec(successfulLoginResponseSpec)
-                            .extract().path("refresh");
-                });
+        LoginBodyModel loginData = new LoginBodyModel(VALID_USERNAME, VALID_PASSWORD);
 
-                step("Отправка запроса logout на выход из сессии", () -> {
-                    LogoutBodyModel logoutBody = new LogoutBodyModel(refreshToken);
-                    SuccessfulLogoutResponseModel successfulLogout = given(baseRequestSpec)
-                            .body(logoutBody)
-                            .when()
-                            .post("/auth/logout/")
-                            .then()
-                            .spec(successfulLogoutResponseSpec)
-                            .extract().as(SuccessfulLogoutResponseModel.class);
-                });
+        String getRefreshToken = api.auth.getRefreshToken(loginData);
+
+        LogoutBodyModel logoutData = new LogoutBodyModel(getRefreshToken);
+        api.auth.logout(logoutData);
+
     }
 
     @Test
     @DisplayName("Выполнение запроса с некорректным токеном")
     public void invalidTokenLogoutTest() {
 
-        InvalidTokenLogoutModel invalidToken =
-                step("Отправка запроса с некорректным токеном", () -> {
-                    LogoutBodyModel logoutBody = new LogoutBodyModel(WRONG_REFRESH_TOKEN);
-                    return given(baseRequestSpec)
-                            .body(logoutBody)
-                            .when()
-                            .post("/auth/logout/")
-                            .then()
-                            .spec(invalidLogoutResponseSpec)
-                            .extract().as(InvalidTokenLogoutModel.class);
-                });
+        LogoutBodyModel logoutData = new LogoutBodyModel(WRONG_REFRESH_TOKEN);
 
-                step("Проверка текста полученных ошибок", () -> {
-                    assertThat(invalidToken.detail()).isEqualTo(ERROR_INVALID_TOKEN);
-                    assertThat(invalidToken.code()).isEqualTo(ERROR_TOKEN_NOT_VALID_CODE);
-                });
+        InvalidTokenLogoutModel logoutResponse = api.auth.setInvalidRefreshToken(logoutData);
+
+        step("Проверка текста полученных ошибок", () -> {
+            assertThat(logoutResponse.detail()).isEqualTo(ERROR_INVALID_TOKEN);
+            assertThat(logoutResponse.code()).isEqualTo(ERROR_TOKEN_NOT_VALID_CODE);
+        });
     }
 
     @Test
     @DisplayName("Выполнение запроса с null в параметре refresh")
     public void nullTokenLogoutTest() {
 
-        EmptyOrNullParamLogoutResponseModel nullOrEmptyToken =
-                step("Отправка запроса с некорректным токеном", () -> {
-                    LogoutBodyModel logoutBody = new LogoutBodyModel(nullRefreshToken);
-                    return given(baseRequestSpec)
-                            .body(logoutBody)
-                            .when()
-                            .post("/auth/logout/")
-                            .then()
-                            .spec(wrongLogoutResponseSpec)
-                            .extract().as(EmptyOrNullParamLogoutResponseModel.class);
-                });
+        LogoutBodyModel logoutData = new LogoutBodyModel(nullRefreshToken);
 
-                step("Проверка текста полученных ошибок", () -> {
-                    assertThat(nullOrEmptyToken.refresh().get(0)).isEqualTo(ERROR_NULL_FIELD);
-                });
+        EmptyOrNullParamLogoutResponseModel logoutResponse = api.auth.setNullOrEmptyRefreshToken(logoutData);
+
+        step("Проверка текста полученных ошибок", () -> {
+            assertThat(logoutResponse.refresh().get(0)).isEqualTo(ERROR_NULL_FIELD);
+        });
     }
 
     @Test
     @DisplayName("Выполнение запроса с пустым параметром refresh")
     public void emptyTokenLogoutTest() {
 
-        EmptyOrNullParamLogoutResponseModel nullOrEmptyToken =
-                step("Отправка запроса с пустым параметром refresh", () -> {
-                    LogoutBodyModel logoutBody = new LogoutBodyModel(emptyRefreshToken);
-                    return given(baseRequestSpec)
-                            .body(logoutBody)
-                            .when()
-                            .post("/auth/logout/")
-                            .then()
-                            .spec(wrongLogoutResponseSpec)
-                            .extract().as(EmptyOrNullParamLogoutResponseModel.class);
-                });
+        LogoutBodyModel logoutData = new LogoutBodyModel(emptyRefreshToken);
 
-                step("Проверка текста полученной ошибки", () -> {
-                    assertThat(nullOrEmptyToken.refresh().get(0)).isEqualTo(ERROR_BLANK_FIELD);
-                });
+        EmptyOrNullParamLogoutResponseModel logoutResponse = api.auth.setNullOrEmptyRefreshToken(logoutData);
+
+        step("Проверка текста полученной ошибки", () -> {
+            assertThat(logoutResponse.refresh().get(0)).isEqualTo(ERROR_BLANK_FIELD);
+        });
     }
 }
