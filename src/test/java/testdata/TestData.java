@@ -2,8 +2,8 @@ package testdata;
 
 import net.datafaker.Faker;
 
-public final class TestData {
-    private static final Faker FAKER = new Faker();
+public class TestData {
+    public static final Faker FAKER = new Faker();
 
     public static final String VALID_USERNAME = "sv_esina";
     public static final String VALID_PASSWORD = "password1";
@@ -22,9 +22,12 @@ public final class TestData {
     public static final String ERROR_EXISTING_USER = "A user with that username already exists.";
     public static final String ERROR_INVALID_USERNAME =
             "Enter a valid username. This value may contain only letters, numbers, and @/./+/-/_ characters.";
+    public static final String ERROR_CLUB_MATCHES = "No Club matches the given query.";
 
     public static final String IP_ADDRESS_REGEXP = "^((25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)\\.){3}"
             + "(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)$";
+
+    public static final String TELEGRAM_LINK = "https://t.me/+WGGl87MjvD9iMzQy";
 
     private TestData() {
     }
@@ -54,4 +57,10 @@ public final class TestData {
     public static String randomEmail() {
         return FAKER.internet().emailAddress();
     }
+
+    public static String randomBookTitle() { return FAKER.book().title(); }
+
+    public static String randomBookAuthors() { return FAKER.book().author(); }
+
+//    public static Integer randomBookAuthors() { return FAKER.number().numberBetween(1700, 2025); }
 }

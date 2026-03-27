@@ -1,0 +1,44 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Generated Schema",
+  "type": "object",
+  "properties": {
+    "bookTitle": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "bookAuthors": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "publicationYear": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "description": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "telegramChatLink": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  },
+  "required": [
+    "bookTitle",
+    "bookAuthors",
+    "publicationYear",
+    "description",
+    "telegramChatLink"
+  ]
+}

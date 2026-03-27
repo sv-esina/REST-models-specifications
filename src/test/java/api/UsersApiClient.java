@@ -1,14 +1,11 @@
 package api;
 
 import io.qameta.allure.Step;
-import models.login.LoginBodyModel;
-import models.login.SuccessfulLoginResponseModel;
 import models.registration.*;
 import models.update.*;
 
 import static io.restassured.RestAssured.given;
 import static specs.BaseSpec.baseRequestSpec;
-import static specs.login.LoginSpec.successfulLoginResponseSpec;
 import static specs.registration.RegistrationSpec.*;
 import static specs.update.UpdateUserSpec.*;
 
@@ -83,6 +80,7 @@ public class UsersApiClient {
                 .extract()
                 .as(EmptyParamsRegistrationResponseModel.class);
     }
+
 
     @Step("Отправка запроса PUT на update данных пользователя")
     public SuccessfulUpdateUserResponseModel updatePut (UpdateBodyModel updateData, String accessToken) {
