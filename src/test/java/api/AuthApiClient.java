@@ -5,7 +5,6 @@ import models.login.*;
 import models.logout.EmptyOrNullParamLogoutResponseModel;
 import models.logout.InvalidTokenLogoutModel;
 import models.logout.LogoutBodyModel;
-import models.logout.SuccessfulLogoutResponseModel;
 
 import static io.restassured.RestAssured.given;
 import static specs.BaseSpec.baseRequestSpec;
